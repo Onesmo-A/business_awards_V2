@@ -1,0 +1,91 @@
+import { ref } from 'vue';
+import axios from 'axios';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
+import { useToast } from 'vue-toastification';
+
+// Hii ni 'singleton promise' kuzuia script ya fingerprintjs isipakuliwe mara nyingi.
+let fpPromise = null;
+const browserTokenKey = 'business_awards_browser_vote_token';
+
+const getBrowserToken = () => {
+    let token = window.localStorage.getItem(browserTokenKey);
+
+    if (!token) {
+        token = window.crypto?.randomUUID
+            ? window.crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+
+        window.localStorage.setItem(browserTokenKey, token);
+    }
+
+    return token;
+};
+
+export function useVote() {
+    const isLoading = ref(false);
+    const message = ref('');
+    const messageType = ref(''); // 'success' au 'error'
+    const toast = useToast();
+
+    const getFingerprintData = async () => {
+        let visitorId = null;
+        const browserToken = getBrowserToken();
+
+        try {
+            if (!fpPromise) {
+                fpPromise = FingerprintJS.load();
+            }
+
+            const fp = await fpPromise;
+            const result = await fp.get();
+            visitorId = result.visitorId;
+        } catch (error) {
+            visitorId = browserToken;
+        }
+
+        return {
+            fingerprint_js: visitorId,
+            browser_token: browserToken,
+            screen_resolution: `${window.screen.width}x${window.screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            language: navigator.language,
+        };
+    };
+
+    const castVote = async (nomineeId) => {
+        isLoading.value = true;
+        message.value = '';
+        messageType.value = '';
+        let voteSucceeded = false;
+
+        try {
+            const fingerprintData = await getFingerprintData();
+            // Tumebadilisha URL ili ilingane na ile tuliyoiweka kwenye routes/web.php
+            // Badala ya /api/vote/{id}, sasa ni /nominees/{id}/vote
+            const response = await axios.post(`/nominees/${nomineeId}/vote`, fingerprintData);
+
+            toast.success(response.data.message);
+            message.value = response.data.message;
+            messageType.value = 'success';
+            voteSucceeded = true;
+
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Kuna tatizo la mtandao limetokea.';
+            toast.error(errorMessage);
+            message.value = errorMessage;
+            messageType.value = 'error';
+
+            // Kama kosa ni "umeshapiga kura" (status 409), bado tunachukulia kama "mafanikio"
+            // kwa upande wa UI ili component mama iweze kuzima vitufe vyote.
+            if (error.response?.status === 409) {
+                voteSucceeded = true;
+            }
+        } finally {
+            isLoading.value = false;
+        }
+
+        return voteSucceeded;
+    };
+
+    return { isLoading, message, messageType, castVote };
+}

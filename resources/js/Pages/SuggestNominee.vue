@@ -1,0 +1,167 @@
+<script setup>
+import { Head, useForm } from '@inertiajs/vue3';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
+import DefaultLayout from '@/Layouts/DefaultLayout.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import TextareaInput from '@/Components/TextareaInput.vue';
+import FlashMessage from '@/Components/FlashMessage.vue';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
+
+defineOptions({
+    layout: DefaultLayout,
+});
+
+const props = defineProps({
+    title: String,
+    description: String,
+    categories: Array,
+});
+
+const form = useForm({
+    suggested_nominee_name: '',
+    suggested_nominee_phone: '',
+    suggested_nominee_workplace: '',
+    category_id: '',
+    reason: '',
+    suggester_name: '',
+    suggester_phone: '',
+    fingerprint_js: '',
+});
+
+const submit = async () => {
+    const fp = await FingerprintJS.load();
+    const result = await fp.get();
+    form.fingerprint_js = result.visitorId;
+    form.post(route('nominees.suggestion.store'));
+};
+
+const siteUrl = 'https://businessawards.co.tz';
+const instagramUrl = 'https://www.instagram.com/business_awards_africa';
+</script>
+
+<template>
+    <Head>
+        <title>{{ title }}</title>
+        <meta name="description"
+            content="Nominate an individual, company, or organization deserving recognition through the Business Awards. Highlight excellence and achievements across various sectors in Tanzania." />
+        <!-- Open Graph / Facebook -->
+        <meta property="og:title" :content="title + ' | Business Awards'" />
+        <meta property="og:description" content="Nominate a business leader or organization you know. Submit the form and recognize their impact in Tanzania's business sector." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" :content="siteUrl + '/suggest-nominee'" />
+        <meta property="og:image" content="https://businessawards.co.tz/images/share-thumbnail.png" />
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" :content="title + ' | Business Awards'" />
+        <meta name="twitter:description" content="Nominate a business leader or organization you know. Submit the form and recognize their impact in Tanzania's business sector." />
+        <meta name="twitter:image" content="https://businessawards.co.tz/images/share-thumbnail.png" />
+    </Head>
+
+    <div class="py-12 pt-32 md:pt-40">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 md:p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-accent drop-shadow-title">{{ title }}</h1>
+                    <p class="mt-2 text-lg text-text-secondary">{{ description }}</p>
+                </div>
+
+                <FlashMessage />
+
+                <form @submit.prevent="submit">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Nominee Name -->
+                        <div class="md:col-span-2">
+                            <InputLabel for="suggested_nominee_name" value="Full Name / Organization / Company to Nominate" />
+                            <TextInput id="suggested_nominee_name" type="text" class="mt-1 block w-full"
+                                v-model="form.suggested_nominee_name" required autofocus />
+                            <InputError class="mt-2" :message="form.errors.suggested_nominee_name" />
+                        </div>
+
+                        <!-- Nominee Phone -->
+                        <div class="md:col-span-2">
+                            <InputLabel for="suggested_nominee_phone" value="Phone Number" />
+                            <TextInput id="suggested_nominee_phone" type="text" class="mt-1 block w-full"
+                                v-model="form.suggested_nominee_phone" />
+                            <InputError class="mt-2" :message="form.errors.suggested_nominee_phone" />
+                        </div>
+
+                        <!-- Category -->
+                        <div class="md:col-span-2">
+                            <InputLabel for="category_id" value="Nominate in Which Category?" />
+                            <v-select
+                                id="category_id"
+                                class="mt-1 block w-full"
+                                v-model="form.category_id"
+                                :options="categories"
+                                label="name"
+                                :reduce="category => category.id"
+                                placeholder="-- Type to search or select a category --"
+                                required
+                            />
+                            <InputError class="mt-2" :message="form.errors.category_id" />
+                        </div>
+
+                        <!-- Reason -->
+                        <div class="md:col-span-2">
+                            <InputLabel for="reason" value="Why Are You Nominating Them? (Briefly describe achievements)" />
+                            <TextareaInput id="reason" class="mt-1 block w-full" v-model="form.reason" required
+                                rows="5" />
+                            <InputError class="mt-2" :message="form.errors.reason" />
+                        </div>
+
+                        <!-- Suggester Info -->
+                        <div class="md:col-span-2 border-t pt-6">
+                            <h3 class="text-lg font-medium text-text-primary">Your Details (Optional)</h3>
+                            <p class="text-sm text-text-secondary mb-4">We may contact you for further information.</p>
+                        </div>
+                        <div>
+                            <InputLabel for="suggester_name" value="Your Name" />
+                            <TextInput id="suggester_name" type="text" class="mt-1 block w-full"
+                                v-model="form.suggester_name" />
+                        </div>
+                        <div>
+                            <InputLabel for="suggester_phone" value="Your Phone Number" />
+                            <TextInput id="suggester_phone" type="text" class="mt-1 block w-full"
+                                v-model="form.suggester_phone" />
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end mt-8">
+                        <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                            Submit Nomination
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style>
+.v-select {
+  position: relative;
+}
+
+.v-select .vs__dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.v-select .vs__actions {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 0.25rem;
+}
+
+.v-select .vs__selected-options {
+  padding-right: 2.5rem;
+}
+</style>

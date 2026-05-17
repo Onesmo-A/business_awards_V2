@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Rangi za Mandhari (Theme Colors) - Dark & Luxury */
+    --background-main: #050505;      /* Nyeusi kabisa (Deep Black) */
+    --background-section: #121212;   /* Giza kidogo kwa ajili ya Cards/Sections */
+    --background-input: #1a1a1a;     /* Kwa inputs fields */
+
+    /* Rangi za Maandishi (Text Colors) */
+    --text-primary: #f3f4f6;      /* Nyeupe iliyopoa (Gray-100) kwa kusomeka */
+    --text-secondary: #9ca3af;    /* Kijivu (Gray-400) kwa maandishi ya ziada */
+    --text-accent: #D4AF37;       /* Dhahabu kwa vichwa vya habari */
+
+    /* Rangi za Vitu Maalum (Accent Colors - Gold Palette) */
+    --accent-primary: #D4AF37;    /* Metallic Gold */
+    --accent-secondary: #F2E29F;  /* Pale Gold (Highlight) */
+    --accent-dark: #8a6c1e;       /* Dark Gold (Shadow) */
+    
+    /* Thamani za RGB kwa ajili ya 'glow effects' (Gold: 212, 175, 55) */
+    --accent-primary-rgb: 212, 175, 55;
+  }
+
+  body {
+    background-color: var(--background-main);
+    color: var(--text-primary);
+    /* Hakikisha scrollbar ni nyeusi */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary) var(--background-main);
+  }
+
+  /* GLOBAL OVERRIDES: Lazimisha fomu zote ziwe nyeusi */
+  input[type='text'], input[type='email'], input[type='password'], 
+  input[type='number'], input[type='search'], input[type='tel'], 
+  input[type='url'], input[type='date'], textarea, select {
+    background-color: var(--background-input) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid #333 !important;
+    border-radius: 0.5rem;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.2) !important;
+    outline: none !important;
+  }
+
+  /* Weka vichwa vya habari (headings) viwe na rangi ya msingi au dhahabu */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+  }
+
+  /* =========================================
+     DARK THEME ENFORCEMENT (Global Overrides)
+     Hii inalazimisha components zote kufuata dark theme
+     hata kama zina 'bg-white' au 'text-gray-900' ndani yake.
+     ========================================= */
+  
+  /* Badilisha background nyeupe kuwa giza (Dark Grey) kwa Cards/Sections */
+  .bg-white {
+    background-color: var(--background-section) !important;
+    border-color: #2d2d2d !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Badilisha background za kijivu nyepesi kuwa nyeusi kabisa */
+  .bg-gray-50, .bg-gray-100, .bg-gray-200 {
+    background-color: var(--background-main) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Badilisha maandishi meusi yawe meupe */
+  .text-gray-900, .text-gray-800, .text-black {
+    color: var(--text-primary) !important;
+  }
+
+  /* Badilisha maandishi ya kijivu yawe mepesi zaidi ili yasomeke */
+  .text-gray-600, .text-gray-500, .text-gray-700 {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Hakikisha borders hazing'ai sana */
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #333 !important;
+  }
+}
+
+@layer utilities {
+  /* Utility ya Card Nyeusi */
+  .card-luxury {
+    @apply bg-[#121212] border border-gray-800 rounded-xl shadow-lg overflow-hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .card-luxury:hover {
+    @apply border-[#D4AF37] transform -translate-y-1;
+    box-shadow: 0 10px 30px -10px rgba(var(--accent-primary-rgb), 0.15);
+  }
+
+  /* Gradient ya Dhahabu ya Kifahari kwa Text */
+  .text-primary-gradient {
+    /* Mchanganyiko wa dhahabu: Dark -> Light -> Classic -> Light -> Bronze */
+    background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shine 5s linear infinite;
+  }
+
+  /* Drop shadow glow kwa text na buttons */
+  .drop-shadow-glow {
+    filter: drop-shadow(0 0 8px rgba(var(--accent-primary-rgb), 0.6));
+  }
+
+  .shadow-primary-glow {
+    box-shadow: 0 4px 20px -5px rgba(var(--accent-primary-rgb), 0.3), 0 0 10px 0 rgba(var(--accent-primary-rgb), 0.2);
+  }
+
+  .shadow-primary-glow:not(:disabled):hover {
+    box-shadow: 0 10px 25px -3px rgba(var(--accent-primary-rgb), 0.4), 0 0 20px 5px rgba(var(--accent-primary-rgb), 0.3);
+  }
+
+  /* Primary button - Gold Luxury Gradient */
+  .btn-primary {
+    @apply text-black font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-500 shadow-primary-glow uppercase tracking-wider text-sm;
+    /* Gradient ya dhahabu */
+    background: linear-gradient(to right, #BF953F 0%, #FBF5B7 50%, #AA771C 100%);
+    background-size: 200% auto;
+    border: 1px solid #AA771C;
+    color: #1a0505; /* Maandishi meusi kwenye dhahabu yanasomeka vizuri zaidi */
+  }
+
+  .btn-primary:hover {
+    background-position: right center;
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  /* Secondary button - Transparent with Gold Border */
+  .btn-secondary {
+    @apply font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-300 uppercase tracking-wider text-sm;
+    background-color: transparent;
+    color: var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(var(--accent-primary-rgb), 0.15);
+    color: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(var(--accent-primary-rgb), 0.2);
+  }
+
+  /* Optional - title glow */
+  .drop-shadow-title {
+    filter: drop-shadow(0 0 10px rgba(var(--accent-primary-rgb), 0.5));
+  }
+  
+  /* Animation for gradient shine */
+  @keyframes shine {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  /* Custom Scrollbar for Webkit */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--background-main); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+  /* Luxury Gradients */
+  .bg-gradient-luxury-dark {
+    background: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 70%);
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
